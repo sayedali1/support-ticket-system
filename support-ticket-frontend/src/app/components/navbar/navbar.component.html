@@ -1,0 +1,52 @@
+<mat-toolbar color="primary" class="navbar">
+  <span class="brand">Support Tickets</span>
+  <span class="spacer"></span>
+
+  @if (!isMobile()) {
+    <!-- Desktop: full links inline -->
+    <button mat-button routerLink="/tickets">Tickets</button>
+    @if (userRole === 'Admin' || userRole === 'SupportAgent') {
+      <button mat-button routerLink="/dashboard">Dashboard</button>
+    }
+    @if (userRole === 'Admin') {
+      <button mat-button routerLink="/users">Users</button>
+    }
+     @if (userRole === 'Customer') {
+        <button mat-button (click)="createTicket()">
+          <mat-icon>add</mat-icon> Create Ticket
+        </button>
+      }
+    <span class="user-info">{{ fullName }}</span>
+    <button mat-icon-button (click)="logout()" matTooltip="Logout">
+      <mat-icon>logout</mat-icon>
+    </button>
+  } @else {
+    <!-- Mobile: hamburger menu -->
+    <button mat-icon-button [matMenuTriggerFor]="mobileMenu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #mobileMenu="matMenu">
+      <button mat-menu-item routerLink="/tickets">
+        <mat-icon>confirmation_number</mat-icon> Tickets
+      </button>
+      @if (userRole === 'Admin' || userRole === 'SupportAgent') {
+        <button mat-menu-item routerLink="/dashboard">
+          <mat-icon>dashboard</mat-icon> Dashboard
+        </button>
+      }
+      @if (userRole === 'Admin') {
+        <button mat-menu-item routerLink="/users">
+          <mat-icon>people</mat-icon> Users
+        </button>
+      }
+       @if (userRole === 'Customer') {
+        <button  mat-menu-item  (click)="createTicket()">
+          <mat-icon>add</mat-icon> Create Ticket
+        </button>
+      }
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon> Logout
+      </button>
+    </mat-menu>
+  }
+</mat-toolbar>

@@ -1,0 +1,157 @@
+<div class="page-container">
+
+  @if (isLoading()) {
+    <p>Loading...</p>
+  } @else if (errorMessage() && !ticket()) {
+    <p class="error-message">{{ errorMessage() }}</p>
+  } @else if (ticket(); as t) {
+    <mat-card class="ticket-card">
+      <mat-card-header>
+        <mat-card-title>{{ t.title }}</mat-card-title>
+        <mat-card-subtitle>Ticket #{{ t.id }} — Opened by {{ t.customerName }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>{{ t.description }}</p>
+
+        <div class="chip-row">
+          <mat-chip>Status: {{ t.status }}</mat-chip>
+          <mat-chip>Priority: {{ t.priority }}</mat-chip>
+          <mat-chip>Agent: {{ t.assignedAgentName || 'Unassigned' }}</mat-chip>
+        </div>
+
+        @if (errorMessage()) {
+          <p class="error-message">{{ errorMessage() }}</p>
+        }
+
+        <!-- Customer: close resolved ticket -->
+        @if (userRole === 'Customer' && t.status === 'Resolved') {
+          <button mat-raised-button color="primary" (click)="closeResolvedTicket()">
+            Close Ticket
+          </button>
+        }
+
+        <!-- Agent: update status -->
+        @if (userRole === 'SupportAgent') {
+          <div class="update-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Status</mat-label>
+              <mat-select [(ngModel)]="selectedStatus">
+                <mat-option value="Open">Open</mat-option>
+                <mat-option value="InProgress">In Progress</mat-option>
+                <mat-option value="Resolved">Resolved</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="updateTicket()">Update</button>
+          </div>
+        }
+
+        <!-- Admin: full update -->
+        @if (userRole === 'Admin') {
+          <div class="update-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Status</mat-label>
+              <mat-select [(ngModel)]="selectedStatus">
+                <mat-option value="Open">Open</mat-option>
+                <mat-option value="InProgress">In Progress</mat-option>
+                <mat-option value="Resolved">Resolved</mat-option>
+                <mat-option value="Closed">Closed</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Priority</mat-label>
+              <mat-select [(ngModel)]="selectedPriority">
+                <mat-option value="Low">Low</mat-option>
+                <mat-option value="Medium">Medium</mat-option>
+                <mat-option value="High">High</mat-option>
+                <mat-option value="Critical">Critical</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Assign Agent</mat-label>
+                <mat-select [(ngModel)]="assignedAgentId">
+                  <mat-option [value]="null">Unassigned</mat-option>
+                    @for (agent of agents(); track agent.id) {
+                      <mat-option [value]="agent.id">{{ agent.fullName }}</mat-option>
+                    }
+            </mat-select>
+        </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="updateTicket()">Update</button>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Time Tracking (Agent/Admin only) -->
+    @if (userRole === 'Admin' || userRole === 'SupportAgent') {
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-card-title>Time Tracking</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (timeSummary(); as summary) {
+            <p><strong>Total logged:</strong> {{ summary.totalMinutes }} minutes</p>
+            @for (entry of summary.entries; track entry.id) {
+              <div class="time-entry">
+                {{ entry.workDate }} — {{ entry.durationMinutes }} min by {{ entry.agentName }}
+                @if (entry.description) { — {{ entry.description }} }
+              </div>
+            }
+          }
+
+          <div class="time-log-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Work Date</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="newTimeLogDate" />
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Minutes</mat-label>
+              <input matInput type="number" [(ngModel)]="newTimeLogMinutes" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Description</mat-label>
+              <input matInput [(ngModel)]="newTimeLogDescription" />
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="submitTimeLog()">Log Time</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Timeline -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Timeline</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @for (entry of timeline(); track entry.timestamp) {
+          <div class="timeline-entry">
+            @if (entry.type === 'Comment') {
+              <p><strong>{{ entry.authorName }}</strong> commented: {{ entry.content }}</p>
+            } @else {
+              <p><strong>{{ entry.authorName }}</strong> changed {{ entry.fieldChanged }}: {{ entry.oldValue }} → {{ entry.newValue }}</p>
+            }
+            <small>{{ entry.timestamp | date: 'short' }}</small>
+          </div>
+          <mat-divider></mat-divider>
+        }
+
+        <div class="comment-form">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Add a comment</mat-label>
+            <textarea matInput [(ngModel)]="newComment" rows="3"></textarea>
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="submitComment()">Post Comment</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

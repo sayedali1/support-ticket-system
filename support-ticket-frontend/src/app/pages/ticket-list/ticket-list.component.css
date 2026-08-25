@@ -1,0 +1,47 @@
+.mobile-only {
+  display: none;
+}
+
+.ticket-card-mobile {
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.detail-row {
+  font-size: 13px;
+  color: #666;
+}
+
+.priority-label {
+  font-size: 13px;
+  color: #555;
+}
+
+@media (max-width: 700px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  .page-container {
+    padding: 12px;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters mat-form-field {
+    width: 100%;
+  }
+}

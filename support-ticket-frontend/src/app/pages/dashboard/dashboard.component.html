@@ -1,0 +1,91 @@
+<div class="page-container">
+  <h1>Dashboard</h1>
+
+  @if (isLoading()) {
+    <p>Loading...</p>
+  } @else if (errorMessage()) {
+    <p class="error-message">{{ errorMessage() }}</p>
+  } @else if (stats(); as s) {
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-number">{{ s.totalTickets }}</div>
+          <div class="stat-label">Total Tickets</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-number">{{ s.openTickets }}</div>
+          <div class="stat-label">Open</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-number">{{ s.inProgressTickets }}</div>
+          <div class="stat-label">In Progress</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-number">{{ s.resolvedTickets }}</div>
+          <div class="stat-label">Resolved</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card critical">
+        <mat-card-content>
+          <div class="stat-number">{{ s.openCriticalTickets }}</div>
+          <div class="stat-label">Open &amp; Critical</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-number">{{ s.averageResolutionHours }}h</div>
+          <div class="stat-label">Avg Resolution Time</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Tickets by Status</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <canvas #statusChart></canvas>
+      </mat-card-content>
+    </mat-card>
+
+    @if (s.agentWorkload.length > 0) {
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Agent Workload</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="s.agentWorkload" class="full-width">
+            <ng-container matColumnDef="agentName">
+              <th mat-header-cell *matHeaderCellDef>Agent</th>
+              <td mat-cell *matCellDef="let a">{{ a.agentName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="assignedTicketCount">
+              <th mat-header-cell *matHeaderCellDef>Total Assigned</th>
+              <td mat-cell *matCellDef="let a">{{ a.assignedTicketCount }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="openAssignedCount">
+              <th mat-header-cell *matHeaderCellDef>Open / In Progress</th>
+              <td mat-cell *matCellDef="let a">{{ a.openAssignedCount }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="agentWorkloadColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: agentWorkloadColumns"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

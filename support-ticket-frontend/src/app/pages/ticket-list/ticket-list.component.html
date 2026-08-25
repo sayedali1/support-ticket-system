@@ -1,0 +1,119 @@
+<div class="page-container">
+  <div class="header">
+    <h1>Tickets</h1>
+    <div class="header-actions">
+    
+    
+    </div>
+  </div>
+   
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchText" (keyup.enter)="onFilterChange()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="onFilterChange()">
+        <mat-option value="">All</mat-option>
+        <mat-option value="Open">Open</mat-option>
+        <mat-option value="InProgress">In Progress</mat-option>
+        <mat-option value="Resolved">Resolved</mat-option>
+        <mat-option value="Closed">Closed</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Priority</mat-label>
+      <mat-select [(ngModel)]="priorityFilter" (selectionChange)="onFilterChange()">
+        <mat-option value="">All</mat-option>
+        <mat-option value="Low">Low</mat-option>
+        <mat-option value="Medium">Medium</mat-option>
+        <mat-option value="High">High</mat-option>
+        <mat-option value="Critical">Critical</mat-option>
+      </mat-select>
+    </mat-form-field>
+     
+  </div>
+
+  @if (isLoading()) {
+    <p>Loading...</p>
+  } @else {
+    
+    <table mat-table [dataSource]="tickets()" class="mat-elevation-z2 full-width desktop-only">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let ticket">{{ ticket.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef>Title</th>
+        <td mat-cell *matCellDef="let ticket">{{ ticket.title }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let ticket">
+          <mat-chip>{{ ticket.status }}</mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="priority">
+        <th mat-header-cell *matHeaderCellDef>Priority</th>
+        <td mat-cell *matCellDef="let ticket">{{ ticket.priority }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="customerName">
+        <th mat-header-cell *matHeaderCellDef>Customer</th>
+        <td mat-cell *matCellDef="let ticket">{{ ticket.customerName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="assignedAgentName">
+        <th mat-header-cell *matHeaderCellDef>Agent</th>
+        <td mat-cell *matCellDef="let ticket">{{ ticket.assignedAgentName || '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef>Created</th>
+        <td mat-cell *matCellDef="let ticket">{{ ticket.createdAt | date: 'short' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let ticket; columns: displayedColumns" (click)="viewTicket(ticket.id)" class="clickable-row"></tr>
+    </table>
+
+      <!-- Mobile: cards -->
+  <div class="mobile-only">
+    @for (ticket of tickets(); track ticket.id) {
+      <mat-card class="ticket-card-mobile" (click)="viewTicket(ticket.id)">
+        <mat-card-content>
+          <div class="card-row">
+            <strong>#{{ ticket.id }} — {{ ticket.title }}</strong>
+          </div>
+          <div class="card-row">
+            <mat-chip>{{ ticket.status }}</mat-chip>
+            <span class="priority-label">{{ ticket.priority }}</span>
+          </div>
+          <div class="card-row detail-row">
+            <span>Customer: {{ ticket.customerName }}</span>
+          </div>
+          <div class="card-row detail-row">
+            <span>Agent: {{ ticket.assignedAgentName || '—' }}</span>
+          </div>
+          <div class="card-row detail-row">
+            <span>{{ ticket.createdAt | date: 'short' }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+    <mat-paginator
+      [length]="totalCount()"
+      [pageSize]="pageSize"
+      [pageIndex]="pageNumber - 1"
+      [pageSizeOptions]="[5, 10, 25]"
+      (page)="onPageChange($event)"
+    ></mat-paginator>
+  }
+</div>
