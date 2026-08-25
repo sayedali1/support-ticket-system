@@ -1,0 +1,18 @@
+# .NET
+bin/
+obj/
+*.user
+Logs/
+
+# Angular / Node
+node_modules/
+support-ticket-frontend/dist/
+support-ticket-frontend/.angular/
+
+# IDE
+.vs/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
